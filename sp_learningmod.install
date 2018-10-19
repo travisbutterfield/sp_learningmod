@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * @file
+ * Install and uninstall functions for the sp_learningmod module.
+ */
+
+/**
+ * Implements of hook_install().
+ */
+function sp_learningmod_install() {
+}
+
+/**
+ * Implements of hook_uninstall().
+ */
+function sp_learningmod_uninstall() {
+  cache_clear_all('variables', 'cache');
+}

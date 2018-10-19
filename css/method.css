@@ -1,0 +1,41 @@
+/* styles for RESPONSES */
+
+.responseset {
+  padding: .5em 20px;
+  margin: 1em 0;
+  border: 1px dashed #FF9900;
+}
+
+.view-sp-learningmod-responses-revealed .responseset {
+  padding: .5em 20px;
+  margin: 0;
+  border: 1px dashed #FF9900;
+}
+
+.responseset h2 {
+  font-size: 1.3em;
+  font-weight: bold;
+  color: #336699;
+  margin: 9.6px 0;
+}
+
+.responseset p.alert {
+  color: #FF9900;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  font-size: .7em;
+  margin: 0px;
+  padding: 0px;
+}
+
+.responseset img {
+  display: block;
+}
+
+div.responsedetail {
+  display: none;
+}
+
+
+
+

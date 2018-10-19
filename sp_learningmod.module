@@ -1,0 +1,371 @@
+<?php
+/**
+ * @file
+ * A custom learning module for managing Street Prostitution
+ */
+
+/**
+ * Implements hook_help().
+ *
+ * Displays help and module information.
+ *
+ * @param path
+ *   Which path of the site we're using to display help
+ * @param arg
+ *   Array that holds the current path as returned from arg() function
+ */
+function sp_learningmod_help($path, $arg) {
+  switch ($path) {
+    case "admin/help#sp_learningmod":
+      $output = t("<p>A custom learning module for managing Street Prostitution</p>");
+      return $output;
+    break;
+    case 'admin/config/system/sp_learningmod':
+      if (module_exists('help')) {
+        $help_text =  t("More help can be found at <a href=\"!help\">sp_learningmod help</a>.", array('!help' => url('admin/help/sp_learningmod')));
+      }
+      else {
+        $help_text = '';
+      }
+      $output = "<p>" . t("A custom learning module for managing Street Prostitution") . " $help_text</p>";
+      return $output;
+    break;
+    }
+}
+
+/**
+ * Implements hook_menu()
+ */
+function sp_learningmod_menu() {
+  $items['learning/prostitution/plan/city-council-meeting'] = array(
+    'title' => 'City Council Meeting',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sp_learningmod_quiz'),
+    'access callback' => TRUE,
+    'file' => 'createmyplanquiz.inc',
+    'file path' => drupal_get_path('module', 'sp_learningmod'),
+  );
+  $items['learning/prostitution/plan/myresponses'] = array(
+    'title' => 'Responses',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sp_learningmod_myresponses'),
+    'access callback' => TRUE,
+    'file' => 'myresponses.inc',
+    'file path' => drupal_get_path('module', 'sp_learningmod'),
+  );
+  $items['learning/prostitution/plan/myplan'] = array(
+    'title' => 'My Plan',
+    'page callback' => array('sp_learningmod_myplan'),
+    'access callback' => TRUE,
+    'file' => 'myplan.inc',
+    'file path' => drupal_get_path('module', 'sp_learningmod'),
+);
+
+  return $items;
+}
+
+/**
+ * Implements hook_node_view()
+ *
+ * Checks whether the current user has visited certain pages, adds those
+ * pages and their cost values to the user profile, and adds a message with an
+ * animated graph showing the amount of budget spent so far.
+ */
+
+function sp_learningmod_node_view($node, $view_mode, $langcode) {
+  if($node->type == 'sp_analyze_interview' || $node->type == 'sp_analyze_other_research' || $node->type == 'sp_analyze_report' || ($node->type == 'sp_article' && $node->nid !== '5780')){
+    //dpm($node, 'node');
+    //call global user variable
+    global $user;
+    // Load full user account object
+    $account = user_load($user->uid);
+    // set learningsp_budget field as variable;
+    $budget = field_get_items('user', $account, 'field_learnsp_budget');
+    // set budget value as integer variable
+    $budgetval = (int)$budget[0]['value'];
+    // get current nid
+    $nid = $node->nid;
+     //if not an sp_article page
+    if($node->type !== 'sp_article') {
+      //get budget value of current page
+      $page_value = $node->field_sp_budget_value[LANGUAGE_NONE][0]['value'];
+
+      /* Check for revealed responses and add them to user account */
+      //load user responses list
+      $user_responses_list = field_get_items('user', $account, 'field_learnsp_responses_revealed');
+      //set variable for associated responses on the node with ternary if-
+      //statement that accounts for when variable is not set yet
+      isset($node->field_sp_associated_response[LANGUAGE_NONE]) ? $node_responses_list = $node->field_sp_associated_response[LANGUAGE_NONE]: $node_responses_list = $node->field_sp_associated_response;
+      //What to do if the user_responses_list is blank
+      if($user_responses_list == false){
+        //create $response_nid array
+        $node_responses_nids = array_column($node_responses_list, 'nid');
+        //Run a loop of all nids in the node_responses_nids array
+        foreach($node_responses_nids as $nnid){
+          //add the nid to the user profile
+          $account->field_learnsp_responses_revealed[LANGUAGE_NONE][]['nid'] = $nnid;
+          //save user account
+          $account = user_save($account);
+        }
+      }
+      //What to do if the node_responses_list is blank
+      elseif($node_responses_list !== false){
+        //Load revealed responses list from user account
+        $user_responses_list = field_get_items('user', $account, 'field_learnsp_responses_revealed');
+        $user_responses_nids = array_column($user_responses_list, 'nid');
+        //create $response_nid array
+        $node_responses_nids = array_column($node_responses_list, 'nid');
+        //Run a loop of all nids in the node_responses_nids array
+        foreach($node_responses_nids as $nnid){
+          //If the nid isn't in the user_responses_nids array
+          if(!in_array($nnid, $user_responses_nids)){
+            //add the nid to the user profile
+            $account->field_learnsp_responses_revealed[LANGUAGE_NONE][]['nid'] = $nnid;
+          }
+          //save user account
+          $account = user_save($account);
+        }
+      }
+    }
+    //What to do if none of the other conditions apply
+    else {
+      //set page_value to null on sp_article nodes
+      $page_value = NULL;
+    }
+
+    //get array of Street Prostitution nodes the current user has visited
+    $visited_list = field_get_items('user', $account, 'field_learnsp_pages_analyze');
+    //get an array of values from the node_list multidimensional array
+    isset($account->field_learnsp_pages_analyze[LANGUAGE_NONE]) ? $visited_list_nids = array_column($visited_list, 'nid'): $visited_list_nids = $account->field_learnsp_pages_analyze;
+
+    //set variable for 'sp_learningmod user' role
+    $rolecheck = user_has_role(6);
+    // set variable for whether user is logged in
+    $authstatus = user_is_logged_in();
+    // redirect from welcome/login page to analyze the problem page if logged in
+    if ($rolecheck == TRUE && $authstatus == TRUE && $budgetval > 0 && $node->nid == '5714') {
+      drupal_goto('/learning/prostitution/analyze-problem', array(), 302);
+    }
+
+    //see if current node is NOT in the node_list_values array
+    if(!in_array($node->nid , $visited_list_nids)) {
+      //If it isn't in the array, update the budget according to page_value
+      $updatebudget = (int)$page_value + $budgetval;
+    }
+    elseif($budgetval > 0) {
+      //If it isn't in the array, update the budget according to page_value
+      $updatebudget = $budgetval;
+    }
+    // show a message with updated budget value
+    drupal_set_message(
+      t('
+        <div>Analyze the Problem</div>
+        <div><span><strong>Budget spent:</strong></span>' . '<span style="display: inline-block; width: 85%; margin-left: 8px;" class="field field-name-field-basic-text-text field-type-text-long field-label-hidden">
+          <div class="field-items">
+              <div class="field-item even">
+                  <div class="w3-light-grey">
+                      <div id="myBar" class="w3-container w3-green w3-center" style="width:0%">0%
+                      </div>
+                  </div>
+              </div>
+              <script>
+              jQuery(document).ready(function move() {
+                      var elem = document.getElementById("myBar");
+                      var width = 0;
+                      var id = setInterval(frame, 10);
+
+                      function frame() {
+                          if (width >= ' . $updatebudget . ') {
+                              clearInterval(id);
+                          } else {
+                              width++;
+                              elem.style.width = width + "%";
+                              elem.innerHTML = "<strong>" + width * 1 + "%" + "</strong>";
+                          }
+                          if (width >= 80 && width <= 100) {
+                              elem.classList.remove("w3-green");
+                              elem.classList.add("orange");
+                          }
+                          if (width > 100) {
+                              elem.classList.remove("orange");
+                              elem.classList.add("red");
+                          }
+                      }
+                  });
+              </script>
+          </div></span>
+        </div>
+      '), 'warning', FALSE
+    );
+
+    if($budgetval !== $updatebudget) {
+      //update learnsp_budget field on user account
+      $account->field_learnsp_budget[LANGUAGE_NONE]['0']['value'] = $updatebudget;
+      // add page to learnsp_pages field on user profile
+      $account->field_learnsp_pages_analyze[LANGUAGE_NONE][]['nid'] = $node->nid;
+
+      //save user account
+      $account = user_save($account);
+    }
+    /*
+     *Perform Critical Questions operations
+     */
+    if($node->nid == '5722'){
+      //get array of Critical Questions node types visited by the current user
+      $critqs_list = field_get_items('user', $account, 'field_learnsp_critqs');
+
+      if($critqs_list !== FALSE){
+        // get array of Critical Questions content types created by user
+        $crit_qs_types = field_get_items('user', $account, 'field_learnsp_crit_categories');
+        //get an array of nids from the critqs_list multidimensional array
+        $critqs_list_nids = array_column($critqs_list, 'nid');
+        //get an array of values from the crit_qs_types_list multidimensional array
+        $crit_qs_types_vals = array_column($crit_qs_types, 'value');
+        //loop through each item in nid list and swap the button hrefs for nodes
+        //that have been created by user and turn those visited buttons gray.
+        foreach ($critqs_list_nids as $cq_node){
+          //load node object
+          $cq_node = node_load($cq_node);
+          //replace underscores with dashes in node types
+          $idmatch = str_replace('_', '-', $cq_node->type);
+          //set variable for nid
+          $cq_nid = $cq_node->nid;
+          //create new link that takes user to node edit page
+          $newlink = '/node/' . $cq_nid . '/edit';
+          //variablize body field
+          $oldbody = $node->body[LANGUAGE_NONE][0]['safe_value'];
+          //create new body field where jQuery replaces button hrefs and classes
+          if($cq_node->status == 1) {
+            $newbody = '<script>
+                          jQuery(document).ready(function($){
+                            $("#' . $idmatch . '").attr("href", "' . $newlink .'");
+                            $("#' . $idmatch . '").attr("class", "btn btn-secondary");
+                          });
+                        </script>' . $oldbody;
+            //set newbody value on node
+            $node->body[LANGUAGE_NONE][0]['safe_value'] = $newbody;
+          }
+          else {
+            $newbody = '<script>
+                          jQuery(document).ready(function($){
+                            $("#' . $idmatch . '").attr("href", "' . $newlink .'");
+                          });
+                        </script>' . $oldbody;
+            //set newbody value on node
+            $node->body[LANGUAGE_NONE][0]['safe_value'] = $newbody;
+          }
+        };
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ *
+ * Disables the learnsp_budget and learnsp_pages fields on the user profile
+ */
+function sp_learningmod_form_alter(&$form, &$form_state, $form_id) {
+  //dpm($form, 'form');
+  //dpm($form_state, 'form_state');
+  if ($form_id == 'user_profile_form') {
+    //$form['field_learnsp_budget']['#disabled'] = TRUE;
+    //$form['field_learnsp_pages']['#disabled'] = TRUE;
+  }
+
+  if($form_id == 'sp_cq_police_community_members_node_form' || $form_id == 'sp_cq_street_prostitutes_node_form' || $form_id == 'sp_cq_clients_johns_node_form' || $form_id == 'sp_cq_pimps_node_form' || $form_id == 'sp_cq_sexual_transactions_node_form' || $form_id == 'sp_cq_environment_node_form' || $form_id == 'sp_cq_drugs_node_form' || $form_id == 'sp_cq_current_response_node_form')
+  {
+    //call global user variable
+    global $user;
+    // Load full user account object
+    $account = user_load($user->uid);
+    // get username
+    $username =$account->name;
+    //get formname value
+    $formname = $form['field_formname'][LANGUAGE_NONE][0]['value']['#default_value'];
+    // set username as node title
+    $newtitle = $form['title']['#default_value'] = $username . ": " . $formname;
+    // disable title field
+    $form['title']['#attributes']['disabled'] = TRUE;
+    // restrict access to unnecessary node metafields
+    $form['title']['#access'] = FALSE;
+    $form['path']['#access'] = FALSE;
+    $form['revision_information']['#access'] = FALSE;
+    $form['revision_information']['revision']['#access'] = FALSE;
+    $form['revision_information']['log']['#access'] = FALSE;
+    $form['author']['#access'] = FALSE;
+    $form['actions']['draft']['#access'] = FALSE;
+    $form['actions']['delete']['#access'] = FALSE;
+    $form['redirect']['#access'] = FALSE;
+    // change button text to 'submit'
+    $form['actions']['submit']['#value'] = 'Submit';
+    //Disable and hide formname field
+    $form['field_formname']['#disabled'] = TRUE;
+    $form['field_formname']['#type'] = 'hidden';
+
+    //get array of Critical Questions node types the current user has visited
+    $critq_list = (array) field_get_items('user', $account, 'field_learnsp_crit_categories');
+    //get an array of values from the critq_list multidimensional array
+    $critq_list_values = (array_column($critq_list, 'value'));
+    // set length of array as variable
+    $critq_length = sizeof($critq_list_values);
+    $cq_type = substr_replace($form_id, '', -10);
+    //see if node type is not in the critq_list_values array
+    if(!in_array($cq_type , $critq_list_values)) {
+      // add node type to critq_list field on user profile upon submit
+      $account->field_learnsp_crit_categories[LANGUAGE_NONE][$critq_length]['value'] = $cq_type;
+      //save user account
+      $account = user_save($account);
+    }
+
+    $form['actions']['submit']['#submit'][] = 'critq_submit';
+  }
+}
+
+function critq_submit($form, &$form_state) {
+
+    $nid = $form_state['values']['nid'];
+    global $user;
+    // Load full user account object
+    $account = user_load($user->uid);
+    //get array of Critical Questions nids the current user has created
+    $critqs_nids_arr = (array) field_get_items('user', $account, 'field_learnsp_critqs');
+    //get an array of values from the critqs_nids_arr multidimensional array
+    $critqs_nids = (array_column($critqs_nids_arr, 'nid'));
+    // set length of array as variable
+    $critqs_nids_length = sizeof($critqs_nids);
+    //see if nid is not in the critq_list_values array
+    if(!in_array($nid , $critqs_nids)) {
+      // add nid to critqs field on user profile upon submit
+      $account->field_learnsp_critqs[LANGUAGE_NONE][$critqs_nids_length]['nid'] = $nid;
+      //save user account
+      $account = user_save($account);
+    }
+
+  // redirect form submission to the Critical Questions page
+  $form_state['redirect'] = '/learning/prostitution/critical-questions-worksheets';
+  //Suppress default drupal message normally shown on node creation
+  // Define an array of the messages you want to remove using their first few words
+  $message_removal = array(
+    "SP CQ",
+  );
+
+  // Remove all of the messages that match your conditions
+  if (isset($_SESSION['messages'])) {
+    foreach ($_SESSION['messages'] as $status => $message_array) {
+      foreach ($_SESSION['messages'][$status] as $key => $value) {
+        foreach ($message_removal as $message) {
+          if (strpos($value, $message) === 0) {
+            unset($_SESSION['messages'][$status][$key]);
+          }
+        }
+      }
+
+      // Clean up the $_SESSION array to prevent empty messages from printing to screen
+      if (empty($_SESSION['messages'][$status])) {
+        unset($_SESSION['messages'][$status]);
+      }
+    }
+  }
+}
+

@@ -1,0 +1,149 @@
+#myBar {
+    max-width: 100%;
+}
+
+.red {
+    color: #fff !important;
+    background-color: #ca1e1e !important;
+}
+
+.orange {
+    color: #4a4a4a !important;
+    background-color: #fd9800 !important;
+}
+
+.w3-light-grey,
+.w3-hover-light-grey:hover,
+.w3-light-gray,
+.w3-hover-light-gray:hover {
+    color: #000!important;
+    background-color: #f1f1f1!important;
+}
+
+.w3-green,
+.w3-hover-green:hover {
+    color: #fff!important;
+    background-color: #4CAF50!important;
+}
+
+.w3-container:after,
+.w3-container:before {
+    content: "";
+    display: table;
+    clear: both
+}
+
+.w3-center {
+    text-align: center!important
+}
+
+.views-bootstrap-grid-plugin-style .sp-analyze {
+    background-color: #efefef;
+    background-clip: content-box;
+    margin: 15px 0px;
+}
+
+.views-bootstrap-grid-plugin-style .sp-analyze .views-field-title {
+    padding: 8px 8px 0;
+    font-size: 1.15em;
+    font-weight: 500;
+}
+
+.views-bootstrap-grid-plugin-style .sp-analyze .views-field-field-description {
+    padding: 0 8px;
+    font-size: .9em;
+}
+
+.views-bootstrap-grid-plugin-style .sp-analyze .views-field-field-sp-budget-value {
+    padding: 0 8px 8px;
+    font-size: .9em;
+    font-weight: 600;
+}
+.views-bootstrap-grid-plugin-style .sp-analyze .sp-image {
+    float: left;
+    margin: 8px;
+}
+
+.hidden {
+    display: none;
+}
+
+.responseset img {
+    display: block;
+}
+
+.responseset a {
+    cursor: pointer;
+}
+
+#paper h2 {
+  font-size: 1.6em;
+  font-weight: bold;
+  color: #336699 !important;
+}
+
+#paper h3 {
+    font-size: 1.45em;
+    font-weight: bold;
+    color: #666;
+    margin: 0;
+}
+
+#paper p.warn {
+    color: #990000;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+#paper {
+    margin: 20px 20px;
+    padding: 30px;
+    border: 1px solid #CCC;
+}
+
+#paper h3 {
+    padding-top: .5em;
+    border-top: 1px solid #CCC;
+}
+
+#paper .floatright {
+    float: right;
+    margin: 2px 2px 5px 10px;
+}
+#paper .txtcenter {
+    text-align: center;
+}
+
+#sp-learningmod-myresponses .form-type-checkbox label::before {
+    margin-left: -0.2em !important;
+    z-index: 100;
+}
+
+#sp-learningmod-myresponses .form-type-checkbox label.checked::after {
+    color: #555555;
+    display: inline-block;
+    font-size: 1.25em;
+    height: 1.4325em;
+    width: 1.5em;
+    position: absolute;
+    left: 0.05em;
+    top: -0.15em;
+    margin-left: -0.15em !important;
+    padding-left: 0;
+    padding-top: 0;
+    content: "";
+    font-family: "FontAwesome";
+    z-index: 200;
+}
+
+/* The sticky class is added to the header with JS when it reaches its scroll position */
+.myplan_sticky {
+    position: fixed;
+    top: 0px;
+    width: 61.5%;
+    margin-top: 86px !important;
+    z-index: 1000;
+    padding: 4px 8px !important;
+    margin-bottom: 0px;
+}
+

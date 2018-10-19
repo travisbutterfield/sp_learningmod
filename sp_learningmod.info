@@ -1,0 +1,14 @@
+name = Street Prostitution Learning Module
+description = A custom learning module for managing Street Prostitution
+package = ASU PubSrv Custom
+core = 7.x
+version = "7.x-1.0"
+
+; Dependencies
+
+; Styles
+stylesheets[all][] = css/sp_learningmod.css
+stylesheets[all][] = css/method.css
+
+; Javascript
+scripts[] = /sp_learningmod.js
