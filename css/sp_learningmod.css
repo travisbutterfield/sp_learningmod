@@ -16,25 +16,25 @@
 .w3-hover-light-grey:hover,
 .w3-light-gray,
 .w3-hover-light-gray:hover {
-    color: #000!important;
-    background-color: #f1f1f1!important;
+    color: #000 !important;
+    background-color: #f1f1f1 !important;
 }
 
 .w3-green,
 .w3-hover-green:hover {
-    color: #fff!important;
-    background-color: #4CAF50!important;
+    color: #fff !important;
+    background-color: #4caf50 !important;
 }
 
 .w3-container:after,
 .w3-container:before {
     content: "";
     display: table;
-    clear: both
+    clear: both;
 }
 
 .w3-center {
-    text-align: center!important
+    text-align: center !important;
 }
 
 .views-bootstrap-grid-plugin-style .sp-analyze {
@@ -51,12 +51,14 @@
 
 .views-bootstrap-grid-plugin-style .sp-analyze .views-field-field-description {
     padding: 0 8px;
-    font-size: .9em;
+    font-size: 0.9em;
 }
 
-.views-bootstrap-grid-plugin-style .sp-analyze .views-field-field-sp-budget-value {
+.views-bootstrap-grid-plugin-style
+    .sp-analyze
+    .views-field-field-sp-budget-value {
     padding: 0 8px 8px;
-    font-size: .9em;
+    font-size: 0.9em;
     font-weight: 600;
 }
 .views-bootstrap-grid-plugin-style .sp-analyze .sp-image {
@@ -77,9 +79,9 @@
 }
 
 #paper h2 {
-  font-size: 1.6em;
-  font-weight: bold;
-  color: #336699 !important;
+    font-size: 1.6em;
+    font-weight: bold;
+    color: #336699 !important;
 }
 
 #paper h3 {
@@ -98,12 +100,12 @@
 #paper {
     margin: 20px 20px;
     padding: 30px;
-    border: 1px solid #CCC;
+    border: 1px solid #ccc;
 }
 
 #paper h3 {
-    padding-top: .5em;
-    border-top: 1px solid #CCC;
+    padding-top: 0.5em;
+    border-top: 1px solid #ccc;
 }
 
 #paper .floatright {
@@ -114,12 +116,20 @@
     text-align: center;
 }
 
-#sp-learningmod-myresponses .form-type-checkbox label::before {
+#sp-learningmod-buildmyplan input.form-checkbox {
+    display: none;
+}
+
+#sp-learningmod-buildmyplan .form-type-checkbox {
+    padding: 0 1.25em 0 0.5em;
+}
+
+#sp-learningmod-buildmyplan .form-type-checkbox label::before {
     margin-left: -0.2em !important;
     z-index: 100;
 }
 
-#sp-learningmod-myresponses .form-type-checkbox label.checked::after {
+#sp-learningmod-buildmyplan .form-type-checkbox label.checked::after {
     color: #555555;
     display: inline-block;
     font-size: 1.25em;
@@ -147,3 +157,44 @@
     margin-bottom: 0px;
 }
 
+#sp-learningmod-beginmodule {
+    display: flex;
+    justify-content: center;
+}
+
+.idealyes,
+.idealno {
+    font-weight: bold;
+    line-height: 1em;
+}
+
+.idealyes::before {
+    content: "\f00c";
+    font-family: "FontAwesome";
+    font-size: 1.75em;
+    color: green;
+    margin-right: 0.4em;
+    position: relative;
+    top: 3px;
+}
+
+.idealno::before {
+    content: "\f05e";
+    font-family: "FontAwesome";
+    font-size: 1.75em;
+    color: red;
+    margin-right: 0.4em;
+    position: relative;
+    top: 3px;
+}
+
+#paper .fired {
+    font-size: 2.5em;
+    margin: 0.3em 0;
+    font-weight: bold;
+    color: red;
+}
+
+.page-admin-config-sp-learningmod .accessibility-hide {
+    display: none;
+}

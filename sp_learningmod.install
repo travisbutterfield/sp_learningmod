@@ -6,14 +6,103 @@
  */
 
 /**
- * Implements of hook_install().
- */
-function sp_learningmod_install() {
-}
-
-/**
- * Implements of hook_uninstall().
+ * Implements hook_uninstall().
  */
 function sp_learningmod_uninstall() {
   cache_clear_all('variables', 'cache');
+}
+
+/**
+ * Implements hook_schema().
+ */
+function sp_learningmod_schema() {
+  $schema = array();
+  $schema['sp_critq_visited'] = array(
+    'description' => 'Database storage of Critical Question Node IDs for each user',
+    'fields' => array(
+      'uid' => array(
+        'description' => 'Primary Key: Unique user ID.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'name' => array(
+        'description' => 'Unique user name.',
+        'type' => 'varchar',
+        'length' => '60',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'pol_comm_nid' => array(
+        'description' => 'Node ID of response to Police and Community Members CQs.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'streetp_nid' => array(
+        'description' => 'Node ID of response to Street Prostitutes CQs.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'clients_nid' => array(
+        'description' => '  Node ID of response to Clients / ("Johns") CQs.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'transact_nid' => array(
+        'description' => 'Node ID of response to Sexual Transactions CQs.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'pimps_nid' => array(
+        'description' => 'Node ID of response to Pimps CQs.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'env_nid' => array(
+        'description' => 'Node ID of response to Environment CQs.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'drugs_nid' => array(
+        'description' => 'Node ID of response to Drugs CQs.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'curr_resp_nid' => array(
+        'description' => 'Node ID of response to Current Response CQs.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('uid'),
+    'unique keys' => array(
+      'name' => array('name'),
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function sp_learningmod_update_7012() {
+  $schema = module_invoke('sp_learningmod', 'schema');
+  db_create_table('sp_critq_visited', $schema['sp_critq_visited']);
 }

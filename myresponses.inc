@@ -1,31 +1,35 @@
 <?php
 
 /**
- * Create My Resources form
+ * @file
+ * My Responses page.
+ */
+
+/**
+ * Create My Responses form.
  */
 function sp_learningmod_myresponses($form, &$form_state) {
-  //access user variable
+  // Access user variable.
   global $user;
-  //set variable for current user
+  // Set variable for current user.
   $account = user_load($user->uid);
-  //load user responses list
+  // Load user responses list.
   $user_responses_list = field_get_items('user', $account, 'field_learnsp_responses_revealed');
-  //dpm($user_responses_list);
+  // dpm($user_responses_list);
   $planbudget = 0;
-  //if the user_responses_list is blank
-  // When the user scrolls the page, execute myFunction
-
-  if($user_responses_list == false){
-  $form['markup'] = array(
-    '#type' => 'markup',
-    '#markup' => '<p>You don\'t have any revealed responses. You need to do more research.</p><p><a class="btn btn-primary" href="/learning/prostitution/analyze-problem">Return to Problem Analysis</a></p>'
-  );
+  // If the user_responses_list is blank
+  // When the user scrolls the page, execute myFunction.
+  if ($user_responses_list == FALSE) {
+    $form['markup'] = array(
+      '#type' => 'markup',
+      '#markup' => '<p>You don\'t have any revealed responses. You need to do more research.</p><p><a class="btn btn-primary" href="/learning/prostitution/analyze-problem">Return to Problem Analysis</a></p>',
+    );
   }
-  //if user_respnoses_list is populated
+  // If user_respnoses_list is populated.
   else {
     $options = array();
-    for ($i = 0; $i < sizeof($user_responses_list); $i++) {
-      ${'res_nid_' . $i} = $user_responses_list[$i]['nid'];
+    for ($i = 0; $i < count($user_responses_list); $i++) {
+      ${'res_nid_' . $i} = $user_responses_list[$i]['target_id'];
       ${'node_' . $i} = node_load(${'res_nid_' . $i});
       ${'node_' . $i . '_body'} = ${'node_' . $i}->body['und'][0]['safe_value'];
       ${'node' . $i . 'cost'} = ${'node_' . $i}->field_cost['und'][0]['value'];
@@ -35,34 +39,34 @@ function sp_learningmod_myresponses($form, &$form_state) {
       );
     }
     $header = array(
-    'cost' => t('Cost'),
-    'res_body' => t('Response'),
+      'cost' => t('Cost'),
+      'res_body' => t('Response'),
     );
 
     $form['markup'] = array(
       '#type' => 'markup',
-      '#markup' => '<p>Listed below are '. ' responses which have been revealed through your analysis but have not been added to your plan. Select which responses your would like to add to your plan by checking the boxes to the left.</p><p>When you have finished selecting all of the responses you would like to add to your plan, click the "Add to Plan" button at the bottom.</p>'
+      '#markup' => '<p>Listed below are ' . /*counted responses*/' responses which have been revealed through your analysis but have not been added to your plan. Select which responses you would like to add to your plan by checking the boxes to the left.</p><p>When you have finished selecting all of the responses you would like to add to your plan, click the "Add to Plan" button at the bottom.</p>',
     );
-    //load user choices list
+    // Load user choices list.
     $user_choices_list = field_get_items('user', $account, 'field_learnsp_plan_choices');
 
     $default_nids = array();
-    if($user_choices_list !== FALSE) {
-      //isolate nid column of $user_choices_list multidimensional array
-      $choices_nids = array_column($user_choices_list, 'nid');
-      //populate array for default value
+    if ($user_choices_list !== FALSE) {
+      // Isolate nid column of $user_choices_list multidimensional array.
+      $choices_nids = array_column($user_choices_list, 'target_id');
+      // Populate array for default value.
       foreach ($choices_nids as $nid) {
         $default_nids[$nid] = TRUE;
       }
     }
-//dpm($default_nids);
+    // dpm($default_nids);
     $form['table'] = array(
       '#type' => 'tableselect',
       '#header' => $header,
       '#options' => $options,
       '#multiple' => TRUE,
       '#access' => TRUE,
-      //'#js_select' => FALSE,
+      // '#js_select' => FALSE,
       '#default_value' => $default_nids,
     );
     $form['submit'] = array(
@@ -71,11 +75,11 @@ function sp_learningmod_myresponses($form, &$form_state) {
     );
     $form['actions']['submit']['#submit'][] = 'sp_learningmod_myresponses_submit';
   }
-  // show a message with updated budget value
+  // Show a message with updated budget value.
   drupal_set_message(
     t('
       <div class="budgetbar">Create My Plan</div>
-      <div><span><strong>Budget spent:</strong></span>' . '<span style="display: inline-block; width: 85%; margin-left: 8px;" class="field field-name-field-basic-text-text field-type-text-long field-label-hidden">
+      <div><span><strong>Budget spent:</strong></span><span style="display: inline-block; width: 85%; margin-left: 8px;" class="field field-name-field-basic-text-text field-type-text-long field-label-hidden">
         <div class="field-items">
             <div class="field-item even">
                 <div class="w3-light-grey">
@@ -226,74 +230,76 @@ function sp_learningmod_myresponses($form, &$form_state) {
       </div>
     '), 'warning', FALSE
   );
-/* Check for revealed responses and add them to user account */
+  /* Check for revealed responses and add them to user account */
 
   return $form;
 }
+
 /**
- * Implements hook_form_FORM_ID_alter()
- *
+ * Implements hook_form_FORM_ID_alter().
  */
 function sp_learningmod_form_sp_learningmod_myresponses_alter(&$form, &$form_state, $form_id) {
-  //access user variable
+  // Access user variable.
   global $user;
-  //set variable for current user
+  // Set variable for current user.
   $account = user_load($user->uid);
-
 
 }
 
+/**
+ * My Responses Submit callback function.
+ */
 function sp_learningmod_myresponses_submit($form, $form_state) {
-  //access user variable
+  // Access user variable.
   global $user;
-  //set variable for current user
+  // Set variable for current user.
   $account = user_load($user->uid);
-  //set results to a variable
+  // Set results to a variable.
   $choices = array_filter($form_state['values']['table']);
-  //dpm($choices, 'choices');
-/* Check for revealed responses and add them to user account */
-  //load user choices list
+  // dpm($choices, 'choices');.
+  /* Check for revealed responses and add them to user account */
+  // Load user choices list.
   $user_choices_list = field_get_items('user', $account, 'field_learnsp_plan_choices');
-  //isolate nid column of $user_choices_list multidimensional array
-  if($user_choices_list !== false){
-    $choices_nids = array_column($user_choices_list, 'nid');
+  // Isolate nid column of $user_choices_list multidimensional array.
+  if ($user_choices_list !== FALSE) {
+    $choices_nids = array_column($user_choices_list, 'target_id');
   }
-  //What to do if the user_choices_list is blank
-  if($user_choices_list == false){
-    //loop through choices and save them to user account
+  // What to do if the user_choices_list is blank.
+  if ($user_choices_list == FALSE) {
+    // Loop through choices and save them to user account.
     foreach ($choices as $rnid) {
-      $account->field_learnsp_plan_choices[LANGUAGE_NONE][]['nid'] = $rnid;
-      //save user account
+      $account->field_learnsp_plan_choices[LANGUAGE_NONE][]['target_id'] = $rnid;
+      // Save user account.
       $account = user_save($account);
     }
   }
-  //What to do if the user_choices_list is not blank
-  elseif($user_choices_list !== false){
-    //reset user_choices_list
+  // What to do if the user_choices_list is not blank.
+  elseif ($user_choices_list !== FALSE) {
+    // Reset user_choices_list.
     $account->field_learnsp_plan_choices = NULL;
-    //save user account
+    // Save user account.
     $account = user_save($account);
-    //Run a loop of all nids in the $choices array
-    foreach($choices as $rnid){
-      $account->field_learnsp_plan_choices[LANGUAGE_NONE][]['nid'] = $rnid;
-      //save user account
+    // Run a loop of all nids in the $choices array.
+    foreach ($choices as $rnid) {
+      $account->field_learnsp_plan_choices[LANGUAGE_NONE][]['target_id'] = $rnid;
+      // Save user account.
       $account = user_save($account);
     }
   }
-  //set redirect location
+  // Set redirect location.
   $_GET['destination'] = '/learning/prostitution/plan/myplan';
 
-  //prevent budget spent message from displaying on redirected page
+  // Prevent budget spent message from displaying on redirected page.
   $remove_strings = array('Create My Plan');
   if (!empty($_SESSION['messages']['warning'])) {
     foreach ($_SESSION['messages']['warning'] as $key => $message) {
       foreach ($remove_strings as $string) {
-        if(strpos($message, $string) !== FALSE) {
+        if (strpos($message, $string) !== FALSE) {
           unset($_SESSION['messages']['warning'][$key]);
         }
       }
     }
-    // Remove the empty status message wrapper if no other messages have been set.
+    // Remove empty status messages if no other messages have been set.
     if (empty($_SESSION['messages']['warning'])) {
       unset($_SESSION['messages']['warning']);
     }
